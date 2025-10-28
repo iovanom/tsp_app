@@ -1,0 +1,44 @@
+[project]
+name = "tsp"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+authors = [
+    { name = "Ivan Majeru", email = "ivanmajeru@gmail.com" }
+]
+requires-python = ">=3.12"
+dependencies = []
+
+[project.scripts]
+tsp = "tsp:main"
+
+[build-system]
+requires = ["uv_build>=0.8.11,<0.9.0"]
+build-backend = "uv_build"
+
+[dependency-groups]
+dev = [
+    "black>=25.9.0",
+    "flake8>=7.3.0",
+    "isort>=7.0.0",
+    "pytest>=8.4.2",
+]
+
+[tool.black]
+line-length = 100
+target-version = ["py311"]
+
+[tool.isort]
+profile = "black"
+line_length = 100
+
+[tool.flake8]
+max-line-length = 100
+extend-ignore = ["E203", "W503"]
+exclude = [
+  ".venv",
+  "build",
+  "dist",
+  ".git",
+  "__pycache__",
+]
