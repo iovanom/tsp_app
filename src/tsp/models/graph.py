@@ -1,6 +1,8 @@
 from typing import List
 import math
 
+EMPTY_VALS = ["", "inf", "NA"]
+
 type Label = str | int
 
 
@@ -23,7 +25,7 @@ class AsymmetricGraph:
                     new_row.append(math.inf)
                     continue
                 try:
-                    if val is None or (isinstance(val, str) and val.strip() in ["", "inf"]):
+                    if val is None or (isinstance(val, str) and val.strip() in EMPTY_VALS):
                         new_row.append(math.inf)
                     else:
                         new_row.append(float(val))
