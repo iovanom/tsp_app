@@ -70,16 +70,17 @@ Output:
 ```
 Algorithm: nearest_neighbor
 Runs: 5
-Cost - Min: 357.00, Max: 357.00, Avg: 357.00
-Time - Min: 0.0002s, Max: 0.0002s, Avg: 0.0002s
+Cost - Min: 560.00, Max: 560.00, Avg: 560.00
+Time - Min: 0.0017s, Max: 0.0033s, Avg: 0.0026s
 ```
 
 ## Samples
 
-The `samples/` folder contains example CSV files:
+Example CSV files:
 
-- `minimal_sample.csv`: A small 3-node example with labels A, B, C.
-- `large_sample.csv`: A 25-node example with random costs.
+- `sample.csv` (in root): A 25-node example with labels A-Y and random costs.
+- `samples/minimal_sample.csv`: A small 3-node example with labels A, B, C.
+- `samples/large_sample.csv`: A 100-node example with labels A1-J10 and random costs.
 
 CSV format: First row is header with node labels. Subsequent rows are the cost matrix (asymmetric, diagonal should be 0 or empty).
 

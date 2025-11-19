@@ -55,7 +55,7 @@ def main() -> None:
         else:
             tour, cost = algo(graph, args.start)
             tour_labels = [graph.labels[i] for i in tour]
-            print(f"Tour: {tour_labels}")
+            print(f"Tour: {' -> '.join(tour_labels)}")
             print(f"Cost: {cost}")
     except Exception as e:
         print(f"Error: {e}", file=sys.stderr)
