@@ -1,4 +1,4 @@
-from typing import List
+from typing import List, Optional
 import math
 
 EMPTY_VALS = ["", "inf", "NA"]
@@ -7,7 +7,7 @@ type Label = str | int
 
 
 class AsymmetricGraph:
-    def __init__(self, cost_matrix: List[List[float]], labels: List[str] = None):
+    def __init__(self, cost_matrix: List[List[float]], labels: Optional[List[str]] = None):
         if not cost_matrix:
             raise ValueError("cost_matrix cannot be empty")
         if any(not isinstance(row, list) for row in cost_matrix):
@@ -53,7 +53,7 @@ class AsymmetricGraph:
     def labels(self) -> List[str]:
         return self._labels
 
-    def label_index(self, label: str) -> dict[str, int]:
+    def label_index(self, label: str) -> int:
         if label not in self._labels_map:
             raise ValueError(f"{label} is not in labels")
         return self._labels_map[label]

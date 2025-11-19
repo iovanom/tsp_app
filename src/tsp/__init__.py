@@ -1,2 +1,62 @@
+import argparse
+import sys
+import time
+
+from tsp.algorithms.constructive import cheapest_insertion, nearest_neighbor
+from tsp.io.csv_reader import read_asymetric_matrix
+
+
 def main() -> None:
-    print("Hello from tsp!")
+    parser = argparse.ArgumentParser(description="Solve TSP using constructive algorithms")
+    parser.add_argument("csv_file", help="Path to the CSV file containing the cost matrix")
+    parser.add_argument(
+        "--start",
+        type=int,
+        default=0,
+        help="Starting node index (default: 0)"
+    )
+    parser.add_argument(
+        "--algorithm",
+        choices=["nearest_neighbor", "cheapest_insertion"],
+        default="nearest_neighbor",
+        help="Algorithm to use (default: nearest_neighbor)"
+    )
+    parser.add_argument(
+        "--benchmark",
+        action="store_true",
+        help="Run benchmark mode with multiple runs"
+    )
+    parser.add_argument(
+        "--runs",
+        type=int,
+        default=10,
+        help="Number of runs for benchmark (default: 10)"
+    )
+    args = parser.parse_args()
+
+    try:
+        graph = read_asymetric_matrix(args.csv_file)
+        algos = {"nearest_neighbor": nearest_neighbor, "cheapest_insertion": cheapest_insertion}
+        algo = algos[args.algorithm]
+
+        if args.benchmark:
+            costs = []
+            times = []
+            for _ in range(args.runs):
+                start_time = time.time()
+                tour, cost = algo(graph, args.start)
+                end_time = time.time()
+                costs.append(cost)
+                times.append(end_time - start_time)
+            print(f"Algorithm: {args.algorithm}")
+            print(f"Runs: {args.runs}")
+            print(f"Cost - Min: {min(costs):.2f}, Max: {max(costs):.2f}, Avg: {sum(costs)/len(costs):.2f}")
+            print(f"Time - Min: {min(times):.4f}s, Max: {max(times):.4f}s, Avg: {sum(times)/len(times):.4f}s")
+        else:
+            tour, cost = algo(graph, args.start)
+            tour_labels = [graph.labels[i] for i in tour]
+            print(f"Tour: {tour_labels}")
+            print(f"Cost: {cost}")
+    except Exception as e:
+        print(f"Error: {e}", file=sys.stderr)
+        sys.exit(1)
