@@ -53,6 +53,11 @@ class AsymmetricGraph:
     def labels(self) -> List[str]:
         return self._labels
 
+    def label_index(self, label: str) -> dict[str, int]:
+        if label not in self._labels_map:
+            raise ValueError(f"{label} is not in labels")
+        return self._labels_map[label]
+
     def c(self, i: Label, j: Label) -> float:
         try:
             if isinstance(i, str):

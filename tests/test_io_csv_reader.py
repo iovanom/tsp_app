@@ -1,6 +1,7 @@
 import pytest
 import tempfile
 import os
+import math
 from tsp.io.csv_reader import _read_csv_matrix_file, _create_asymmetric_matrix
 from tsp.models.graph import AsymmetricGraph
 
@@ -115,12 +116,20 @@ class TestCreateAsymmetricMatrix:
         assert graph.labels == ['A', 'B', 'C']
 
     def test_create_with_header_and_first_col_dash(self):
-        """Test creating matrix with header and first cell '-'"""
+        """Test header '-' triggers label-col and trims rows"""
         rows = [['A', '0', '10'], ['B', '12', '0']]
         header = ['-', 'A', 'B']
         graph = _create_asymmetric_matrix(rows, header)
         assert isinstance(graph, AsymmetricGraph)
         assert graph.labels == ['A', 'B']
+        # Ensure the first column (row labels) is dropped from data
+        # so the resulting 2x2 matrix becomes [[0,10],[12,0]] and
+        # AsymmetricGraph normalizes the diagonal to infinity
+        assert graph.n == 2
+        assert math.isinf(graph.c('A', 'A'))
+        assert math.isinf(graph.c('B', 'B'))
+        assert graph.c('A', 'B') == 10.0
+        assert graph.c('B', 'A') == 12.0
 
     def test_create_matrix_too_small(self):
         """Test creating matrix too small (< 2 rows)"""
