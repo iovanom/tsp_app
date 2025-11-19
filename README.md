@@ -37,6 +37,9 @@ uv run tsp <csv_file> [options]
 - `csv_file`: Path to the CSV file containing the cost matrix.
 - `--start N`: Starting node index (default: 0).
 - `--algorithm {nearest_neighbor,cheapest_insertion}`: Algorithm to use (default: nearest_neighbor).
+- `--two-opt`: Apply 2-opt improvement to the tour after the constructive algorithm.
+- `--two-opt-max-passes N`: Max improvement passes for 2-opt when no timeout is set (default: 100).
+- `--two-opt-timeout S`: Timeout in seconds for 2-opt; ignores max_passes when set (default: no limit).
 - `--benchmark`: Run benchmark mode with multiple runs.
 - `--runs N`: Number of runs for benchmark (default: 10).
 
@@ -58,6 +61,24 @@ Solve using the cheapest insertion:
 
 ```bash
 uv run tsp samples/minimal_sample.csv --algorithm cheapest_insertion
+```
+
+Solve using nearest neighbor and apply 2-opt improvement:
+
+```bash
+uv run tsp samples/minimal_sample.csv --two-opt
+```
+
+Solve using cheapest insertion and apply 2-opt improvement:
+
+```bash
+uv run tsp samples/minimal_sample.csv --algorithm cheapest_insertion --two-opt
+```
+
+Solve with 2-opt limited to 10 passes and 1 second timeout:
+
+```bash
+uv run tsp samples/large_sample.csv --two-opt --two-opt-max-passes 10 --two-opt-timeout 1.0
 ```
 
 Benchmark nearest neighbor with 5 runs:

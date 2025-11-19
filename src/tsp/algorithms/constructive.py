@@ -1,3 +1,6 @@
+import time
+from typing import Optional
+
 from tsp.models.graph import AsymmetricGraph
 
 
@@ -86,3 +89,41 @@ def cheapest_insertion(
         cycle = cycle[idx:] + cycle[:idx]
 
     return cycle, _tour_cost(graph, cycle)
+
+
+def two_opt(graph: AsymmetricGraph, tour: list[int], max_passes: int = 100, timeout: float | None = None) -> tuple[list[int], float]:
+    """
+    Improves a tour using the 2-opt algorithm
+    returns a tuple (tour, cost)
+    max_passes: maximum number of improvement passes to prevent infinite loops
+    timeout: maximum time in seconds to run (None for no limit)
+    """
+    n = len(tour)
+    if n < 4:
+        return tour, _tour_cost(graph, tour)
+
+    improved = True
+    passes = 0
+    start_time = time.time()
+    while improved and (timeout is None or time.time() - start_time < timeout) and (timeout is not None or passes < max_passes):
+        passes += 1
+        improved = False
+        for i in range(n - 2):
+            for j in range(i + 2, n - 1):
+                # check if swapping edges improves
+                a = tour[i]
+                b = tour[i + 1]
+                c = tour[j]
+                d = tour[j + 1]
+                # current cost: a->b + c->d
+                # new cost: a->c + b->d
+                delta = graph.c(a, c) + graph.c(b, d) - graph.c(a, b) - graph.c(c, d)
+                if delta < 0:
+                    # reverse the segment from i+1 to j
+                    tour[i + 1 : j + 1] = reversed(tour[i + 1 : j + 1])
+                    improved = True
+                    break
+            if improved:
+                break
+
+    return tour, _tour_cost(graph, tour)
