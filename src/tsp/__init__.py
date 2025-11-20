@@ -2,7 +2,7 @@ import argparse
 import sys
 import time
 
-from tsp.algorithms.constructive import cheapest_insertion, nearest_neighbor, two_opt
+from tsp.algorithms.constructive import cheapest_insertion, nearest_neighbor, three_opt, two_opt
 from tsp.io.csv_reader import read_asymetric_matrix
 
 
@@ -39,6 +39,23 @@ def main() -> None:
         help="Timeout in seconds for 2-opt (default: no limit)"
     )
     parser.add_argument(
+        "--three-opt",
+        action="store_true",
+        help="Apply 3-opt improvement to the tour"
+    )
+    parser.add_argument(
+        "--three-opt-max-passes",
+        type=int,
+        default=100,
+        help="Max improvement passes for 3-opt (default: 100)"
+    )
+    parser.add_argument(
+        "--three-opt-timeout",
+        type=float,
+        default=None,
+        help="Timeout in seconds for 3-opt (default: no limit)"
+    )
+    parser.add_argument(
         "--benchmark",
         action="store_true",
         help="Run benchmark mode with multiple runs"
@@ -59,6 +76,8 @@ def main() -> None:
             tour, cost = algos[args.algorithm](graph, start)
             if args.two_opt:
                 tour, cost = two_opt(graph, tour, max_passes=args.two_opt_max_passes, timeout=args.two_opt_timeout)
+            if args.three_opt:
+                tour, cost = three_opt(graph, tour, max_passes=args.three_opt_max_passes, timeout=args.three_opt_timeout)
             return tour, cost
 
         if args.benchmark:
@@ -70,7 +89,7 @@ def main() -> None:
                 end_time = time.time()
                 costs.append(cost)
                 times.append(end_time - start_time)
-            algo_name = f"{args.algorithm}{' + 2-opt' if args.two_opt else ''}"
+            algo_name = f"{args.algorithm}{' + 2-opt' if args.two_opt else ''}{' + 3-opt' if args.three_opt else ''}"
             print(f"Algorithm: {algo_name}")
             print(f"Runs: {args.runs}")
             print(f"Cost - Min: {min(costs):.2f}, Max: {max(costs):.2f}, Avg: {sum(costs)/len(costs):.2f}")
