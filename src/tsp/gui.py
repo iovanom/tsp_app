@@ -7,12 +7,15 @@ from typing import Optional
 MATPLOTLIB_AVAILABLE = False
 try:
     import tkinter as tk_test
+
     tk_test.Tk()  # Test if Tkinter can create a window
     tk_test.Tk().destroy()
     import matplotlib
-    matplotlib.use('TkAgg')
+
+    matplotlib.use("TkAgg")
     import matplotlib.pyplot as plt
     from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
+
     MATPLOTLIB_AVAILABLE = True
 except Exception:
     MATPLOTLIB_AVAILABLE = False
@@ -27,6 +30,7 @@ class TSPGUI(tk.Tk):
         super().__init__()
         self.title("TSP Solver")
         self.geometry("1200x800")
+        self.resizable(True, True)
 
         # Variables
         self.csv_file = tk.StringVar()
@@ -50,75 +54,94 @@ class TSPGUI(tk.Tk):
         self.create_widgets()
 
     def create_widgets(self):
-        # Left frame for inputs
-        input_frame = tk.Frame(self)
-        input_frame.grid(row=0, column=0, sticky="n")
+        self.notebook = ttk.Notebook(self)
+        self.notebook.pack(expand=True, fill="both")
+
+        # Settings Tab
+        self.settings_frame = tk.Frame(self.notebook)
+        self.notebook.add(self.settings_frame, text="Settings")
 
         # CSV File
-        tk.Label(input_frame, text="CSV File:").grid(row=0, column=0, sticky="w")
-        tk.Entry(input_frame, textvariable=self.csv_file, width=30).grid(row=0, column=1)
-        tk.Button(input_frame, text="Browse", command=self.browse_file).grid(row=0, column=2)
-        tk.Button(input_frame, text="Load Table", command=self.load_table).grid(row=0, column=3)
+        tk.Label(self.settings_frame, text="CSV File:").grid(row=0, column=0, sticky="w")
+        tk.Entry(self.settings_frame, textvariable=self.csv_file, width=30).grid(row=0, column=1)
+        tk.Button(self.settings_frame, text="Browse", command=self.browse_file).grid(
+            row=0, column=2
+        )
+        tk.Button(self.settings_frame, text="Load Table", command=self.load_table).grid(
+            row=0, column=3
+        )
 
         # Algorithm
-        tk.Label(input_frame, text="Algorithm:").grid(row=1, column=0, sticky="w")
+        tk.Label(self.settings_frame, text="Algorithm:").grid(row=1, column=0, sticky="w")
         ttk.Combobox(
-            input_frame,
+            self.settings_frame,
             textvariable=self.algorithm,
             values=["nearest_neighbor", "cheapest_insertion"],
             width=15,
         ).grid(row=1, column=1)
 
         # Start
-        tk.Label(input_frame, text="Start Node:").grid(row=2, column=0, sticky="w")
-        tk.Entry(input_frame, textvariable=self.start, width=5).grid(row=2, column=1)
+        tk.Label(self.settings_frame, text="Start Node:").grid(row=2, column=0, sticky="w")
+        tk.Entry(self.settings_frame, textvariable=self.start, width=5).grid(row=2, column=1)
 
         # 2-opt
-        tk.Checkbutton(input_frame, text="2-opt", variable=self.two_opt).grid(
+        tk.Checkbutton(self.settings_frame, text="2-opt", variable=self.two_opt).grid(
             row=3, column=0, sticky="w"
         )
-        tk.Label(input_frame, text="Max Passes:").grid(row=4, column=0, sticky="w")
-        tk.Entry(input_frame, textvariable=self.two_opt_max_passes, width=5).grid(row=4, column=1)
-        tk.Label(input_frame, text="Timeout (s):").grid(row=5, column=0, sticky="w")
-        tk.Entry(input_frame, textvariable=self.two_opt_timeout, width=5).grid(row=5, column=1)
+        tk.Label(self.settings_frame, text="Max Passes:").grid(row=4, column=0, sticky="w")
+        tk.Entry(self.settings_frame, textvariable=self.two_opt_max_passes, width=5).grid(
+            row=4, column=1
+        )
+        tk.Label(self.settings_frame, text="Timeout (s):").grid(row=5, column=0, sticky="w")
+        tk.Entry(self.settings_frame, textvariable=self.two_opt_timeout, width=5).grid(
+            row=5, column=1
+        )
 
         # 3-opt
-        tk.Checkbutton(input_frame, text="3-opt", variable=self.three_opt).grid(
+        tk.Checkbutton(self.settings_frame, text="3-opt", variable=self.three_opt).grid(
             row=6, column=0, sticky="w"
         )
-        tk.Label(input_frame, text="Max Passes:").grid(row=7, column=0, sticky="w")
-        tk.Entry(input_frame, textvariable=self.three_opt_max_passes, width=5).grid(row=7, column=1)
-        tk.Label(input_frame, text="Timeout (s):").grid(row=8, column=0, sticky="w")
-        tk.Entry(input_frame, textvariable=self.three_opt_timeout, width=5).grid(row=8, column=1)
+        tk.Label(self.settings_frame, text="Max Passes:").grid(row=7, column=0, sticky="w")
+        tk.Entry(self.settings_frame, textvariable=self.three_opt_max_passes, width=5).grid(
+            row=7, column=1
+        )
+        tk.Label(self.settings_frame, text="Timeout (s):").grid(row=8, column=0, sticky="w")
+        tk.Entry(self.settings_frame, textvariable=self.three_opt_timeout, width=5).grid(
+            row=8, column=1
+        )
 
         # Benchmark
-        tk.Checkbutton(input_frame, text="Benchmark", variable=self.benchmark).grid(
+        tk.Checkbutton(self.settings_frame, text="Benchmark", variable=self.benchmark).grid(
             row=9, column=0, sticky="w"
         )
-        tk.Label(input_frame, text="Runs:").grid(row=10, column=0, sticky="w")
-        tk.Entry(input_frame, textvariable=self.runs, width=5).grid(row=10, column=1)
+        tk.Label(self.settings_frame, text="Runs:").grid(row=10, column=0, sticky="w")
+        tk.Entry(self.settings_frame, textvariable=self.runs, width=5).grid(row=10, column=1)
 
         # Run
-        tk.Button(input_frame, text="Run", command=self.run_tsp).grid(
+        tk.Button(self.settings_frame, text="Run", command=self.run_tsp).grid(
             row=11, column=0, columnspan=4
         )
 
-        # Table frame
-        self.table_frame = tk.Frame(self)
-        self.table_frame.grid(row=0, column=1, sticky="n")
+        # Data Table Tab
+        self.table_frame = tk.Frame(self.notebook)
+        self.notebook.add(self.table_frame, text="Data Table")
 
-        # Results
-        self.result_text = tk.Text(self, height=10, width=80)
-        self.result_text.grid(row=1, column=0, columnspan=2)
+        # Graph View Tab
+        self.graph_frame = tk.Frame(self.notebook)
+        self.notebook.add(self.graph_frame, text="Graph View")
+
+        # Results in Graph tab
+        self.result_text = tk.Text(self.graph_frame, height=10, width=80)
+        self.result_text.pack(side=tk.BOTTOM, fill=tk.X)
 
         # Plot
         if MATPLOTLIB_AVAILABLE:
             self.figure = plt.Figure(figsize=(5, 4), dpi=100)
             self.ax = self.figure.add_subplot(111)
-            self.canvas = FigureCanvasTkAgg(self.figure, master=self)
-            self.canvas.get_tk_widget().grid(row=0, column=2, sticky="n")
+            self.canvas = FigureCanvasTkAgg(self.figure, master=self.graph_frame)
+            self.canvas.get_tk_widget().pack(side=tk.TOP, fill=tk.BOTH, expand=True)
         else:
-            tk.Label(self, text="Matplotlib not available for plotting").grid(row=0, column=2)
+            tk.Label(self.graph_frame, text="Matplotlib not available for plotting").pack()
 
     def browse_file(self):
         file = filedialog.askopenfilename(filetypes=[("CSV files", "*.csv")])
@@ -244,12 +267,12 @@ class TSPGUI(tk.Tk):
         angles = [2 * math.pi * i / n for i in range(n)]
         x = [math.cos(a) for a in angles]
         y = [math.sin(a) for a in angles]
-        self.ax.scatter(x, y, c='blue')
+        self.ax.scatter(x, y, c="blue")
         for i, label in enumerate(graph.labels):
-            self.ax.text(x[i], y[i], label, fontsize=12, ha='center', va='center')
+            self.ax.text(x[i], y[i], label, fontsize=12, ha="center", va="center")
         tour_x = [x[i] for i in tour] + [x[tour[0]]]
         tour_y = [y[i] for i in tour] + [y[tour[0]]]
-        self.ax.plot(tour_x, tour_y, 'r-')
+        self.ax.plot(tour_x, tour_y, "r-")
         self.canvas.draw()
 
 
