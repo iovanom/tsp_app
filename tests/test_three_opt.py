@@ -1,5 +1,5 @@
-from tsp.models.graph import AsymmetricGraph
 from tsp.algorithms.constructive import nearest_neighbor, three_opt
+from tsp.models.graph import AsymmetricGraph
 
 
 def _tour_cost(g: AsymmetricGraph, tour: list[int]) -> float:
@@ -10,11 +10,11 @@ def _tour_cost(g: AsymmetricGraph, tour: list[int]) -> float:
 def test_three_opt_improves_tour():
     # Create a graph where we can test improvement
     m = [
-        [float('inf'), 1, 10, 5, 8],
-        [5, float('inf'), 1, 10, 3],
-        [10, 5, float('inf'), 1, 7],
-        [1, 10, 5, float('inf'), 2],
-        [8, 3, 7, 2, float('inf')],
+        [float("inf"), 1, 10, 5, 8],
+        [5, float("inf"), 1, 10, 3],
+        [10, 5, float("inf"), 1, 7],
+        [1, 10, 5, float("inf"), 2],
+        [8, 3, 7, 2, float("inf")],
     ]
     g = AsymmetricGraph(m)
     # Nearest neighbor from 0: 0->1 (1), 1->2 (1), 2->3 (1), 3->4 (2), total ~5
@@ -29,10 +29,10 @@ def test_three_opt_improves_tour():
 def test_three_opt_no_improvement():
     # Use a graph where nearest neighbor gives optimal
     m = [
-        [float('inf'), 1, 10, 5],
-        [5, float('inf'), 1, 10],
-        [10, 5, float('inf'), 1],
-        [1, 10, 5, float('inf')],
+        [float("inf"), 1, 10, 5],
+        [5, float("inf"), 1, 10],
+        [10, 5, float("inf"), 1],
+        [1, 10, 5, float("inf")],
     ]
     g = AsymmetricGraph(m)
     optimal_tour = [0, 1, 2, 3]
@@ -44,11 +44,11 @@ def test_three_opt_no_improvement():
 def test_three_opt_small_graph():
     # 5 nodes, should work
     m = [
-        [float('inf'), 1, 2, 3, 4],
-        [4, float('inf'), 1, 2, 3],
-        [3, 4, float('inf'), 1, 2],
-        [2, 3, 4, float('inf'), 1],
-        [1, 2, 3, 4, float('inf')],
+        [float("inf"), 1, 2, 3, 4],
+        [4, float("inf"), 1, 2, 3],
+        [3, 4, float("inf"), 1, 2],
+        [2, 3, 4, float("inf"), 1],
+        [1, 2, 3, 4, float("inf")],
     ]
     g = AsymmetricGraph(m)
     initial_tour = [0, 1, 2, 3, 4]

@@ -3,70 +3,65 @@ import sys
 import time
 
 from tsp.algorithms.constructive import cheapest_insertion, nearest_neighbor, three_opt, two_opt
+from tsp.gui import main as gui_main
 from tsp.io.csv_reader import read_asymetric_matrix
 
 
 def main() -> None:
     parser = argparse.ArgumentParser(description="Solve TSP using constructive algorithms")
-    parser.add_argument("csv_file", help="Path to the CSV file containing the cost matrix")
-    parser.add_argument(
-        "--start",
-        type=int,
-        default=0,
-        help="Starting node index (default: 0)"
-    )
+    parser.add_argument("--gui", action="store_true", help="Launch the GUI application")
+    parser.add_argument("csv_file", nargs='?', help="Path to the CSV file containing the cost matrix")
+    parser.add_argument("--start", type=int, default=0, help="Starting node index (default: 0)")
     parser.add_argument(
         "--algorithm",
         choices=["nearest_neighbor", "cheapest_insertion"],
         default="nearest_neighbor",
-        help="Algorithm to use (default: nearest_neighbor)"
+        help="Algorithm to use (default: nearest_neighbor)",
     )
     parser.add_argument(
-        "--two-opt",
-        action="store_true",
-        help="Apply 2-opt improvement to the tour"
+        "--two-opt", action="store_true", help="Apply 2-opt improvement to the tour"
     )
     parser.add_argument(
         "--two-opt-max-passes",
         type=int,
         default=100,
-        help="Max improvement passes for 2-opt (default: 100)"
+        help="Max improvement passes for 2-opt (default: 100)",
     )
     parser.add_argument(
         "--two-opt-timeout",
         type=float,
         default=None,
-        help="Timeout in seconds for 2-opt (default: no limit)"
+        help="Timeout in seconds for 2-opt (default: no limit)",
     )
     parser.add_argument(
-        "--three-opt",
-        action="store_true",
-        help="Apply 3-opt improvement to the tour"
+        "--three-opt", action="store_true", help="Apply 3-opt improvement to the tour"
     )
     parser.add_argument(
         "--three-opt-max-passes",
         type=int,
         default=100,
-        help="Max improvement passes for 3-opt (default: 100)"
+        help="Max improvement passes for 3-opt (default: 100)",
     )
     parser.add_argument(
         "--three-opt-timeout",
         type=float,
         default=None,
-        help="Timeout in seconds for 3-opt (default: no limit)"
+        help="Timeout in seconds for 3-opt (default: no limit)",
     )
     parser.add_argument(
-        "--benchmark",
-        action="store_true",
-        help="Run benchmark mode with multiple runs"
+        "--benchmark", action="store_true", help="Run benchmark mode with multiple runs"
     )
     parser.add_argument(
-        "--runs",
-        type=int,
-        default=10,
-        help="Number of runs for benchmark (default: 10)"
+        "--runs", type=int, default=10, help="Number of runs for benchmark (default: 10)"
     )
     args = parser.parse_args()
+
+    if args.gui:
+        gui_main()
+        return
+
+    if not args.csv_file:
+        parser.error("csv_file is required when not using --gui")
 
     try:
         graph = read_asymetric_matrix(args.csv_file)
@@ -75,9 +70,16 @@ def main() -> None:
         def get_tour_cost(start):
             tour, cost = algos[args.algorithm](graph, start)
             if args.two_opt:
-                tour, cost = two_opt(graph, tour, max_passes=args.two_opt_max_passes, timeout=args.two_opt_timeout)
+                tour, cost = two_opt(
+                    graph, tour, max_passes=args.two_opt_max_passes, timeout=args.two_opt_timeout
+                )
             if args.three_opt:
-                tour, cost = three_opt(graph, tour, max_passes=args.three_opt_max_passes, timeout=args.three_opt_timeout)
+                tour, cost = three_opt(
+                    graph,
+                    tour,
+                    max_passes=args.three_opt_max_passes,
+                    timeout=args.three_opt_timeout,
+                )
             return tour, cost
 
         if args.benchmark:
@@ -92,8 +94,12 @@ def main() -> None:
             algo_name = f"{args.algorithm}{' + 2-opt' if args.two_opt else ''}{' + 3-opt' if args.three_opt else ''}"
             print(f"Algorithm: {algo_name}")
             print(f"Runs: {args.runs}")
-            print(f"Cost - Min: {min(costs):.2f}, Max: {max(costs):.2f}, Avg: {sum(costs)/len(costs):.2f}")
-            print(f"Time - Min: {min(times):.4f}s, Max: {max(times):.4f}s, Avg: {sum(times)/len(times):.4f}s")
+            print(
+                f"Cost - Min: {min(costs):.2f}, Max: {max(costs):.2f}, Avg: {sum(costs)/len(costs):.2f}"
+            )
+            print(
+                f"Time - Min: {min(times):.4f}s, Max: {max(times):.4f}s, Avg: {sum(times)/len(times):.4f}s"
+            )
         else:
             tour, cost = get_tour_cost(args.start)
             tour_labels = [graph.labels[i] for i in tour]

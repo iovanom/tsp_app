@@ -1,12 +1,13 @@
-from typing import List
 import math
+from typing import List
+
 import pytest
 
-from tsp.models.graph import AsymmetricGraph
 from tsp.algorithms.constructive import (
-    nearest_neighbor,
     cheapest_insertion,
+    nearest_neighbor,
 )
+from tsp.models.graph import AsymmetricGraph
 
 
 def _build_graph() -> AsymmetricGraph:

@@ -1,5 +1,4 @@
 import time
-from typing import Optional
 
 from tsp.models.graph import AsymmetricGraph
 
@@ -9,9 +8,7 @@ def _tour_cost(graph: AsymmetricGraph, tour: list[int]) -> float:
     return sum(graph.c(tour[i], tour[(i + 1) % n]) for i in range(n))
 
 
-def nearest_neighbor(
-    graph: AsymmetricGraph, start: int = 0
-) -> tuple[list[int], float]:
+def nearest_neighbor(graph: AsymmetricGraph, start: int = 0) -> tuple[list[int], float]:
     """
     Constructs a tour using the nearest neighbor algorithm
     returns a tuple (tour, cost)
@@ -38,9 +35,7 @@ def nearest_neighbor(
     return tour, _tour_cost(graph, tour)
 
 
-def cheapest_insertion(
-    graph: AsymmetricGraph, start: int = 0
-) -> tuple[list[int], float]:
+def cheapest_insertion(graph: AsymmetricGraph, start: int = 0) -> tuple[list[int], float]:
     """
     Constructs a tour using the cheapest insertion algorithm
     returns a tuple (tour, cost)
@@ -91,7 +86,9 @@ def cheapest_insertion(
     return cycle, _tour_cost(graph, cycle)
 
 
-def two_opt(graph: AsymmetricGraph, tour: list[int], max_passes: int = 100, timeout: float | None = None) -> tuple[list[int], float]:
+def two_opt(
+    graph: AsymmetricGraph, tour: list[int], max_passes: int = 100, timeout: float | None = None
+) -> tuple[list[int], float]:
     """
     Improves a tour using the 2-opt algorithm
     returns a tuple (tour, cost)
@@ -105,7 +102,11 @@ def two_opt(graph: AsymmetricGraph, tour: list[int], max_passes: int = 100, time
     improved = True
     passes = 0
     start_time = time.time()
-    while improved and (timeout is None or time.time() - start_time < timeout) and (timeout is not None or passes < max_passes):
+    while (
+        improved
+        and (timeout is None or time.time() - start_time < timeout)
+        and (timeout is not None or passes < max_passes)
+    ):
         passes += 1
         improved = False
         for i in range(n - 2):
@@ -120,7 +121,7 @@ def two_opt(graph: AsymmetricGraph, tour: list[int], max_passes: int = 100, time
                 delta = graph.c(a, c) + graph.c(b, d) - graph.c(a, b) - graph.c(c, d)
                 if delta < 0:
                     # reverse the segment from i+1 to j
-                    tour[i + 1 : j + 1] = reversed(tour[i + 1 : j + 1])
+                    tour[i+1:j+1] = reversed(tour[i+1:j+1])
                     improved = True
                     break
             if improved:
@@ -129,7 +130,9 @@ def two_opt(graph: AsymmetricGraph, tour: list[int], max_passes: int = 100, time
     return tour, _tour_cost(graph, tour)
 
 
-def three_opt(graph: AsymmetricGraph, tour: list[int], max_passes: int = 100, timeout: float | None = None) -> tuple[list[int], float]:
+def three_opt(
+    graph: AsymmetricGraph, tour: list[int], max_passes: int = 100, timeout: float | None = None
+) -> tuple[list[int], float]:
     """
     Improves a tour using the 3-opt algorithm
     returns a tuple (tour, cost)
@@ -143,7 +146,9 @@ def three_opt(graph: AsymmetricGraph, tour: list[int], max_passes: int = 100, ti
     improved = True
     passes = 0
     start_time = time.time()
-    while improved and (timeout is None or time.time() - start_time < timeout) and passes < max_passes:
+    while (
+        improved and (timeout is None or time.time() - start_time < timeout) and passes < max_passes
+    ):
         passes += 1
         improved = False
         for i in range(n - 3):
@@ -160,29 +165,29 @@ def three_opt(graph: AsymmetricGraph, tour: list[int], max_passes: int = 100, ti
                     # case 1: reverse i+1 to j
                     delta1 = graph.c(a, c) + graph.c(b, d) + graph.c(e, f) - current
                     if delta1 < 0:
-                        tour[i + 1 : j + 1] = reversed(tour[i + 1 : j + 1])
+                        tour[i+1:j+1] = reversed(tour[i+1:j+1])
                         improved = True
                         break
 
                     # case 2: reverse j+1 to k
                     delta2 = graph.c(a, b) + graph.c(c, e) + graph.c(d, f) - current
                     if delta2 < 0:
-                        tour[j + 1 : k + 1] = reversed(tour[j + 1 : k + 1])
+                        tour[j+1:k+1] = reversed(tour[j+1:k+1])
                         improved = True
                         break
 
                     # case 3: reverse i+1 to k
                     delta3 = graph.c(a, e) + graph.c(b, d) + graph.c(c, f) - current
                     if delta3 < 0:
-                        tour[i + 1 : k + 1] = reversed(tour[i + 1 : k + 1])
+                        tour[i+1:k+1] = reversed(tour[i+1:k+1])
                         improved = True
                         break
 
                     # case 4: reverse i+1 to j and j+1 to k
                     delta4 = graph.c(a, d) + graph.c(c, b) + graph.c(e, f) - current
                     if delta4 < 0:
-                        tour[i + 1 : j + 1] = reversed(tour[i + 1 : j + 1])
-                        tour[j + 1 : k + 1] = reversed(tour[j + 1 : k + 1])
+                        tour[i+1:j+1] = reversed(tour[i+1:j+1])
+                        tour[j+1:k+1] = reversed(tour[j+1:k+1])
                         improved = True
                         break
 
