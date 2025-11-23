@@ -50,8 +50,11 @@ class TSPGUI(tk.Tk):
         self.create_widgets()
 
     def create_widgets(self):
-        self.notebook = ttk.Notebook(self)
-        self.notebook.pack(expand=True, fill="both")
+        self.main_frame = tk.Frame(self)
+        self.main_frame.pack(fill=tk.BOTH, expand=True)
+
+        self.notebook = ttk.Notebook(self.main_frame)
+        self.notebook.pack(fill=tk.BOTH, expand=True)
 
         # Settings Tab
         self.settings_frame = tk.Frame(self.notebook)
@@ -113,11 +116,6 @@ class TSPGUI(tk.Tk):
         tk.Label(self.settings_frame, text="Runs:").grid(row=10, column=0, sticky="w")
         tk.Entry(self.settings_frame, textvariable=self.runs, width=5).grid(row=10, column=1)
 
-        # Run
-        tk.Button(self.settings_frame, text="Run", command=self.run_tsp).grid(
-            row=11, column=0, columnspan=4
-        )
-
         # Data Table Tab
         self.table_frame = tk.Frame(self.notebook)
         self.notebook.add(self.table_frame, text="Data Table")
@@ -139,6 +137,11 @@ class TSPGUI(tk.Tk):
         else:
             tk.Label(self.graph_frame, text="Matplotlib not available for plotting").pack()
 
+        # Global Run Button
+        tk.Button(self.main_frame, text="Run TSP", command=self.run_tsp).pack(
+            side=tk.BOTTOM, pady=10
+        )
+
     def browse_file(self):
         file = filedialog.askopenfilename(filetypes=[("CSV files", "*.csv")])
         if file:
@@ -149,6 +152,7 @@ class TSPGUI(tk.Tk):
             self.graph = read_asymetric_matrix(self.csv_file.get())
             self.labels = self.graph.labels
             self.create_table()
+            self.notebook.select(1)  # Switch to Data Table tab
         except Exception as e:
             self.result_text.delete(1.0, tk.END)
             self.result_text.insert(tk.END, f"Error loading table: {e}")
@@ -244,6 +248,7 @@ class TSPGUI(tk.Tk):
                 self.result_text.delete(1.0, tk.END)
                 self.result_text.insert(tk.END, result)
                 self.plot_tour(graph, tour)
+                self.notebook.select(2)  # Switch to Graph View tab
             else:
                 tour, cost = get_tour_cost(self.start.get())
                 tour_labels = [graph.labels[i] for i in tour]
@@ -251,6 +256,7 @@ class TSPGUI(tk.Tk):
                 self.result_text.delete(1.0, tk.END)
                 self.result_text.insert(tk.END, result)
                 self.plot_tour(graph, tour)
+                self.notebook.select(2)  # Switch to Graph View tab
         except Exception as e:
             self.result_text.delete(1.0, tk.END)
             self.result_text.insert(tk.END, f"Error: {e}")
