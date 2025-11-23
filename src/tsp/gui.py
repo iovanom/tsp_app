@@ -49,10 +49,6 @@ class TSPGUI(tk.Tk):
         self.table_entries: list[list[tk.Entry]] = []
         self.labels: list[str] = []
 
-        # Spinner
-        self.spinner_chars = itertools.cycle(['|', '/', '-', '\\'])
-        self.spinner_running = False
-
         # Layout
         self.create_widgets()
 
@@ -139,14 +135,15 @@ class TSPGUI(tk.Tk):
         if MATPLOTLIB_AVAILABLE:
             self.figure = plt.Figure(figsize=(5, 4), dpi=100)  # type: ignore
             self.ax = self.figure.add_subplot(111)
+            self.ax.axis("off")
             self.canvas = FigureCanvasTkAgg(self.figure, master=self.graph_frame)  # type: ignore
             self.canvas.get_tk_widget().pack(side=tk.TOP, fill=tk.BOTH, expand=True)
         else:
             tk.Label(self.graph_frame, text="Matplotlib not available for plotting").pack()
 
-        # Spinner and Run Button
-        self.spinner_label = tk.Label(self.main_frame, text="", font=("Arial", 16))
-        self.spinner_label.pack(side=tk.BOTTOM, pady=5)
+        # Progress Bar and Run Button
+        self.progress = ttk.Progressbar(self.main_frame, mode='indeterminate')
+        self.progress.pack(side=tk.BOTTOM, pady=5)
         self.run_button = tk.Button(self.main_frame, text="Run TSP", command=self.run_tsp)
         self.run_button.pack(side=tk.BOTTOM, pady=10)
 
@@ -211,23 +208,16 @@ class TSPGUI(tk.Tk):
             cost_matrix.append(row)
         return AsymmetricGraph(cost_matrix, self.labels)
 
-    def start_spinner(self):
-        self.spinner_running = True
+    def start_progress(self):
+        self.progress.start()
         self.run_button.config(state='disabled')
-        self._spin()
 
-    def stop_spinner(self):
-        self.spinner_running = False
-        self.spinner_label.config(text="")
+    def stop_progress(self):
+        self.progress.stop()
         self.run_button.config(state='normal')
 
-    def _spin(self):
-        if self.spinner_running:
-            self.spinner_label.config(text=next(self.spinner_chars))
-            self.after(100, self._spin)
-
     def run_tsp(self):
-        self.start_spinner()
+        self.start_progress()
         thread = threading.Thread(target=self._run_computation)
         thread.start()
 
@@ -287,14 +277,14 @@ class TSPGUI(tk.Tk):
             self.after(0, lambda: self._on_error(e))
 
     def _on_computation_done(self, graph, tour, result):
-        self.stop_spinner()
+        self.stop_progress()
         self.result_text.delete(1.0, tk.END)
         self.result_text.insert(tk.END, result)
         self.plot_tour(graph, tour)
         self.notebook.select(2)  # Switch to Graph View tab
 
     def _on_error(self, e):
-        self.stop_spinner()
+        self.stop_progress()
         self.result_text.delete(1.0, tk.END)
         self.result_text.insert(tk.END, f"Error: {e}")
 
