@@ -143,7 +143,6 @@ class TSPGUI(tk.Tk):
 
         # Progress Bar and Run Button
         self.progress = ttk.Progressbar(self.main_frame, mode='indeterminate')
-        self.progress.pack(side=tk.BOTTOM, pady=5)
         self.run_button = tk.Button(self.main_frame, text="Run TSP", command=self.run_tsp)
         self.run_button.pack(side=tk.BOTTOM, pady=10)
 
@@ -157,6 +156,7 @@ class TSPGUI(tk.Tk):
             self.graph = read_asymetric_matrix(self.csv_file.get())
             self.labels = self.graph.labels
             self.create_table()
+            self.plot_nodes(self.graph)
             self.notebook.select(1)  # Switch to Data Table tab
         except Exception as e:
             self.result_text.delete(1.0, tk.END)
@@ -209,11 +209,13 @@ class TSPGUI(tk.Tk):
         return AsymmetricGraph(cost_matrix, self.labels)
 
     def start_progress(self):
+        self.progress.pack(side=tk.BOTTOM, pady=5, before=self.run_button)
         self.progress.start()
         self.run_button.config(state='disabled')
 
     def stop_progress(self):
         self.progress.stop()
+        self.progress.pack_forget()
         self.run_button.config(state='normal')
 
     def run_tsp(self):
@@ -288,6 +290,9 @@ class TSPGUI(tk.Tk):
         self.result_text.delete(1.0, tk.END)
         self.result_text.insert(tk.END, f"Error: {e}")
 
+    def plot_nodes(self, graph):
+        self.plot_tour(graph, None)
+
     def plot_tour(self, graph, tour):
         if not MATPLOTLIB_AVAILABLE:
             return
@@ -299,9 +304,10 @@ class TSPGUI(tk.Tk):
         self.ax.scatter(x, y, c="blue")
         for i, label in enumerate(graph.labels):
             self.ax.text(x[i], y[i], label, fontsize=12, ha="center", va="center")
-        tour_x = [x[i] for i in tour] + [x[tour[0]]]
-        tour_y = [y[i] for i in tour] + [y[tour[0]]]
-        self.ax.plot(tour_x, tour_y, "r-")
+        if tour:
+            tour_x = [x[i] for i in tour] + [x[tour[0]]]
+            tour_y = [y[i] for i in tour] + [y[tour[0]]]
+            self.ax.plot(tour_x, tour_y, "r-")
         self.ax.axis("off")  # Remove axis labels and ticks
         self.canvas.draw()
 
