@@ -275,6 +275,7 @@ class TSPGUI(tk.Tk):
         tour_x = [x[i] for i in tour] + [x[tour[0]]]
         tour_y = [y[i] for i in tour] + [y[tour[0]]]
         self.ax.plot(tour_x, tour_y, "r-")
+        self.ax.axis("off")  # Remove axis labels and ticks
         self.canvas.draw()
 
 
