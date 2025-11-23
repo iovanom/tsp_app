@@ -4,21 +4,22 @@ import tkinter as tk
 from tkinter import filedialog, ttk
 from typing import Optional
 
-MATPLOTLIB_AVAILABLE = False
+from tsp.algorithms.constructive import cheapest_insertion, nearest_neighbor, three_opt, two_opt
+from tsp.io.csv_reader import read_asymetric_matrix
+from tsp.models.graph import AsymmetricGraph
+
 try:
     import matplotlib
 
     matplotlib.use("TkAgg")
-    import matplotlib.pyplot as plt
-    from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
+    import matplotlib.pyplot as plt  # type: ignore
+    from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg  # type: ignore
 
     MATPLOTLIB_AVAILABLE = True
 except ImportError:
+    plt = None  # type: ignore
+    FigureCanvasTkAgg = None  # type: ignore
     MATPLOTLIB_AVAILABLE = False
-
-from tsp.algorithms.constructive import cheapest_insertion, nearest_neighbor, three_opt, two_opt
-from tsp.io.csv_reader import read_asymetric_matrix
-from tsp.models.graph import AsymmetricGraph
 
 
 class TSPGUI(tk.Tk):
@@ -130,9 +131,9 @@ class TSPGUI(tk.Tk):
 
         # Plot
         if MATPLOTLIB_AVAILABLE:
-            self.figure = plt.Figure(figsize=(5, 4), dpi=100)
+            self.figure = plt.Figure(figsize=(5, 4), dpi=100)  # type: ignore
             self.ax = self.figure.add_subplot(111)
-            self.canvas = FigureCanvasTkAgg(self.figure, master=self.graph_frame)
+            self.canvas = FigureCanvasTkAgg(self.figure, master=self.graph_frame)  # type: ignore
             self.canvas.get_tk_widget().pack(side=tk.TOP, fill=tk.BOTH, expand=True)
         else:
             tk.Label(self.graph_frame, text="Matplotlib not available for plotting").pack()
@@ -237,7 +238,11 @@ class TSPGUI(tk.Tk):
                     end_time = time.time()
                     costs.append(cost)
                     times.append(end_time - start_time)
-                algo_name = f"{self.algorithm.get()}{' + 2-opt' if self.two_opt.get() else ''}{' + 3-opt' if self.three_opt.get() else ''}"
+                algo_name = (
+                    f"{self.algorithm.get()}"
+                    f"{' + 2-opt' if self.two_opt.get() else ''}"
+                    f"{' + 3-opt' if self.three_opt.get() else ''}"
+                )
                 avg_cost = sum(costs) / len(costs)
                 avg_time = sum(times) / len(times)
                 result = (

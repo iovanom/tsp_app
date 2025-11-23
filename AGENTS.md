@@ -6,6 +6,7 @@ This is a Python CLI tool for solving the Traveling Salesman Problem (TSP) using
 ## File Structure
 - `src/tsp/__init__.py`: CLI entry point with argument parsing and main execution logic.
 - `src/tsp/algorithms/constructive.py`: TSP algorithms (nearest_neighbor, cheapest_insertion, two_opt, three_opt).
+- `src/tsp/gui.py`: GUI application using tkinter for interactive TSP solving with matplotlib plotting.
 - `src/tsp/models/graph.py`: AsymmetricGraph class for cost matrix handling with labels.
 - `src/tsp/io/csv_reader.py`: CSV file reader for cost matrices with header labels.
 - `tests/test_algorithms.py`: Unit tests for constructive algorithms.
@@ -13,6 +14,7 @@ This is a Python CLI tool for solving the Traveling Salesman Problem (TSP) using
 - `tests/test_io_csv_reader.py`: Unit tests for CSV reading.
 - `tests/test_two_opt.py`: Unit tests for 2-opt algorithm.
 - `tests/test_three_opt.py`: Unit tests for 3-opt algorithm.
+- `samples/hello_gui.py`: Simple tkinter hello world example.
 - `samples/minimal_sample.csv`: Small 3-node example (A,B,C).
 - `samples/large_sample.csv`: 100-node example (A1-J10 labels).
 - `samples/sample.csv`: 25-node example (A-Y labels).
@@ -35,9 +37,11 @@ This is a Python CLI tool for solving the Traveling Salesman Problem (TSP) using
   - `--three-opt`: Apply 3-opt local search improvement after constructive algorithm.
   - `--three-opt-max-passes N`: Max passes for 3-opt (default: 100; ignored if timeout set).
   - `--three-opt-timeout S`: Time limit for 3-opt in seconds (ignores max_passes when set).
+  - `--gui`: Launch the graphical user interface.
+- **GUI Application**: Interactive tkinter-based GUI with tabs for settings, data table editing, and graph visualization (optional matplotlib for plotting).
 - **2-opt Algorithm**: Local search to improve tours by reversing segments that reduce cost; includes safety limits to prevent infinite loops.
 - **3-opt Algorithm**: Local search to improve tours by evaluating and applying segment reversals for three edges; includes safety limits to prevent infinite loops.
-- **Sample Files**: Added CSV examples for testing (3, 25, 100 nodes).
+- **Sample Files**: Added CSV examples for testing (3, 25, 100 nodes) and a simple tkinter hello world example.
 - **Benchmarking**: CLI supports performance measurement with stats output.
 
 ## Development Guidelines

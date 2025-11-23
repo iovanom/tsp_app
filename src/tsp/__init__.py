@@ -10,7 +10,9 @@ from tsp.io.csv_reader import read_asymetric_matrix
 def main() -> None:
     parser = argparse.ArgumentParser(description="Solve TSP using constructive algorithms")
     parser.add_argument("--gui", action="store_true", help="Launch the GUI application")
-    parser.add_argument("csv_file", nargs='?', help="Path to the CSV file containing the cost matrix")
+    parser.add_argument(
+        "csv_file", nargs="?", help="Path to the CSV file containing the cost matrix"
+    )
     parser.add_argument("--start", type=int, default=0, help="Starting node index (default: 0)")
     parser.add_argument(
         "--algorithm",

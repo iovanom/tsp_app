@@ -1,5 +1,6 @@
 import tkinter as tk
 
+
 def main():
     root = tk.Tk()
     root.title("Hello World")
@@ -8,6 +9,7 @@ def main():
     button = tk.Button(root, text="Close", command=root.quit)
     button.pack(pady=10)
     root.mainloop()
+
 
 if __name__ == "__main__":
     main()

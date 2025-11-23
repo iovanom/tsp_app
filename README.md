@@ -7,6 +7,7 @@
     - [CLI](#cli)
       - [Options](#options)
       - [Examples](#examples)
+    - [GUI](#gui)
   - [Samples](#samples)
   - [Testing](#testing)
   - [Development](#development)
@@ -129,6 +130,22 @@ Runs: 5
 Cost - Min: 540.00, Max: 550.00, Avg: 545.00
 Time - Min: 0.0500s, Max: 0.0800s, Avg: 0.0650s
 ```
+
+### GUI
+
+Launch the graphical user interface:
+
+```bash
+uv run tsp --gui
+```
+
+The GUI provides an interactive way to solve TSP problems with the following features:
+
+- **Settings Tab**: Configure algorithm options, load CSV files, and set parameters for 2-opt/3-opt improvements and benchmarking.
+- **Data Table Tab**: View and edit the cost matrix loaded from a CSV file or entered manually.
+- **Graph View Tab**: Visualize the TSP tour on a circular plot (requires matplotlib) and display results.
+
+Load a CSV file or manually enter the cost matrix in the Data Table tab, select your options in Settings, and click "Run TSP" to compute and visualize the solution.
 
 ## Samples
 

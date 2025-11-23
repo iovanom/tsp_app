@@ -603,6 +603,7 @@ dev = [
     { name = "black" },
     { name = "flake8" },
     { name = "isort" },
+    { name = "pycodestyle" },
     { name = "pytest" },
 ]
 
@@ -614,5 +615,6 @@ dev = [
     { name = "black", specifier = ">=25.9.0" },
     { name = "flake8", specifier = ">=7.3.0" },
     { name = "isort", specifier = ">=7.0.0" },
+    { name = "pycodestyle", specifier = ">=2.14.0" },
     { name = "pytest", specifier = ">=8.4.2" },
 ]

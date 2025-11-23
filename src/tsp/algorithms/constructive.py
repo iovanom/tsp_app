@@ -121,7 +121,7 @@ def two_opt(
                 delta = graph.c(a, c) + graph.c(b, d) - graph.c(a, b) - graph.c(c, d)
                 if delta < 0:
                     # reverse the segment from i+1 to j
-                    tour[i+1:j+1] = reversed(tour[i+1:j+1])
+                    tour[i + 1:j + 1] = reversed(tour[i + 1:j + 1])
                     improved = True
                     break
             if improved:
@@ -165,29 +165,29 @@ def three_opt(
                     # case 1: reverse i+1 to j
                     delta1 = graph.c(a, c) + graph.c(b, d) + graph.c(e, f) - current
                     if delta1 < 0:
-                        tour[i+1:j+1] = reversed(tour[i+1:j+1])
+                        tour[i + 1:j + 1] = reversed(tour[i + 1:j + 1])
                         improved = True
                         break
 
                     # case 2: reverse j+1 to k
                     delta2 = graph.c(a, b) + graph.c(c, e) + graph.c(d, f) - current
                     if delta2 < 0:
-                        tour[j+1:k+1] = reversed(tour[j+1:k+1])
+                        tour[j + 1:k + 1] = reversed(tour[j + 1:k + 1])
                         improved = True
                         break
 
                     # case 3: reverse i+1 to k
                     delta3 = graph.c(a, e) + graph.c(b, d) + graph.c(c, f) - current
                     if delta3 < 0:
-                        tour[i+1:k+1] = reversed(tour[i+1:k+1])
+                        tour[i + 1:k + 1] = reversed(tour[i + 1:k + 1])
                         improved = True
                         break
 
                     # case 4: reverse i+1 to j and j+1 to k
                     delta4 = graph.c(a, d) + graph.c(c, b) + graph.c(e, f) - current
                     if delta4 < 0:
-                        tour[i+1:j+1] = reversed(tour[i+1:j+1])
-                        tour[j+1:k+1] = reversed(tour[j+1:k+1])
+                        tour[i + 1:j + 1] = reversed(tour[i + 1:j + 1])
+                        tour[j + 1:k + 1] = reversed(tour[j + 1:k + 1])
                         improved = True
                         break
 

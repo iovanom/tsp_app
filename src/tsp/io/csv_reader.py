@@ -5,7 +5,7 @@ from tsp.models.graph import AsymmetricGraph
 
 
 def read_asymetric_matrix(
-        path: str, has_header: bool = True, delimiter: str = ","
+    path: str, has_header: bool = True, delimiter: str = ","
 ) -> AsymmetricGraph:
     rows, header = _read_csv_matrix_file(path, has_header, delimiter)
     return _create_asymmetric_matrix(rows, header)
