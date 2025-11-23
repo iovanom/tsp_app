@@ -4,8 +4,12 @@ import tkinter as tk
 from tkinter import filedialog, ttk
 from typing import Optional
 
-import matplotlib.pyplot as plt
-from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
+try:
+    import matplotlib.pyplot as plt
+    from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
+    MATPLOTLIB_AVAILABLE = True
+except ImportError:
+    MATPLOTLIB_AVAILABLE = False
 
 from tsp.algorithms.constructive import cheapest_insertion, nearest_neighbor, three_opt, two_opt
 from tsp.io.csv_reader import read_asymetric_matrix
@@ -102,10 +106,13 @@ class TSPGUI(tk.Tk):
         self.result_text.grid(row=1, column=0, columnspan=2)
 
         # Plot
-        self.figure = plt.Figure(figsize=(5, 4), dpi=100)
-        self.ax = self.figure.add_subplot(111)
-        self.canvas = FigureCanvasTkAgg(self.figure, master=self)
-        self.canvas.get_tk_widget().grid(row=0, column=2, sticky="n")
+        if MATPLOTLIB_AVAILABLE:
+            self.figure = plt.Figure(figsize=(5, 4), dpi=100)
+            self.ax = self.figure.add_subplot(111)
+            self.canvas = FigureCanvasTkAgg(self.figure, master=self)
+            self.canvas.get_tk_widget().grid(row=0, column=2, sticky="n")
+        else:
+            tk.Label(self, text="Matplotlib not available for plotting").grid(row=0, column=2)
 
     def browse_file(self):
         file = filedialog.askopenfilename(filetypes=[("CSV files", "*.csv")])
@@ -224,17 +231,19 @@ class TSPGUI(tk.Tk):
             self.result_text.insert(tk.END, f"Error: {e}")
 
     def plot_tour(self, graph, tour):
+        if not MATPLOTLIB_AVAILABLE:
+            return
         self.ax.clear()
         n = graph.n
         angles = [2 * math.pi * i / n for i in range(n)]
         x = [math.cos(a) for a in angles]
         y = [math.sin(a) for a in angles]
-        self.ax.scatter(x, y, c="blue")
+        self.ax.scatter(x, y, c='blue')
         for i, label in enumerate(graph.labels):
-            self.ax.text(x[i], y[i], label, fontsize=12, ha="center", va="center")
+            self.ax.text(x[i], y[i], label, fontsize=12, ha='center', va='center')
         tour_x = [x[i] for i in tour] + [x[tour[0]]]
         tour_y = [y[i] for i in tour] + [y[tour[0]]]
-        self.ax.plot(tour_x, tour_y, "r-")
+        self.ax.plot(tour_x, tour_y, 'r-')
         self.canvas.draw()
 
 
