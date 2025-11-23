@@ -1,4 +1,6 @@
+import itertools
 import math
+import threading
 import time
 import tkinter as tk
 from tkinter import filedialog, ttk
@@ -46,6 +48,10 @@ class TSPGUI(tk.Tk):
         self.graph: Optional[AsymmetricGraph] = None
         self.table_entries: list[list[tk.Entry]] = []
         self.labels: list[str] = []
+
+        # Spinner
+        self.spinner_chars = itertools.cycle(['|', '/', '-', '\\'])
+        self.spinner_running = False
 
         # Layout
         self.create_widgets()
@@ -138,10 +144,11 @@ class TSPGUI(tk.Tk):
         else:
             tk.Label(self.graph_frame, text="Matplotlib not available for plotting").pack()
 
-        # Global Run Button
-        tk.Button(self.main_frame, text="Run TSP", command=self.run_tsp).pack(
-            side=tk.BOTTOM, pady=10
-        )
+        # Spinner and Run Button
+        self.spinner_label = tk.Label(self.main_frame, text="", font=("Arial", 16))
+        self.spinner_label.pack(side=tk.BOTTOM, pady=5)
+        self.run_button = tk.Button(self.main_frame, text="Run TSP", command=self.run_tsp)
+        self.run_button.pack(side=tk.BOTTOM, pady=10)
 
     def browse_file(self):
         file = filedialog.askopenfilename(filetypes=[("CSV files", "*.csv")])
@@ -204,7 +211,27 @@ class TSPGUI(tk.Tk):
             cost_matrix.append(row)
         return AsymmetricGraph(cost_matrix, self.labels)
 
+    def start_spinner(self):
+        self.spinner_running = True
+        self.run_button.config(state='disabled')
+        self._spin()
+
+    def stop_spinner(self):
+        self.spinner_running = False
+        self.spinner_label.config(text="")
+        self.run_button.config(state='normal')
+
+    def _spin(self):
+        if self.spinner_running:
+            self.spinner_label.config(text=next(self.spinner_chars))
+            self.after(100, self._spin)
+
     def run_tsp(self):
+        self.start_spinner()
+        thread = threading.Thread(target=self._run_computation)
+        thread.start()
+
+    def _run_computation(self):
         try:
             if self.table_entries:
                 graph = self.get_graph_from_table()
@@ -250,21 +277,26 @@ class TSPGUI(tk.Tk):
                     f"Cost - Min: {min(costs):.2f}, Max: {max(costs):.2f}, Avg: {avg_cost:.2f}\n"
                     f"Time - Min: {min(times):.4f}s, Max: {max(times):.4f}s, Avg: {avg_time:.4f}s"
                 )
-                self.result_text.delete(1.0, tk.END)
-                self.result_text.insert(tk.END, result)
-                self.plot_tour(graph, tour)
-                self.notebook.select(2)  # Switch to Graph View tab
+                self.after(0, lambda: self._on_computation_done(graph, tour, result))
             else:
                 tour, cost = get_tour_cost(self.start.get())
                 tour_labels = [graph.labels[i] for i in tour]
                 result = f"Tour: {tour_labels}\nCost: {cost}"
-                self.result_text.delete(1.0, tk.END)
-                self.result_text.insert(tk.END, result)
-                self.plot_tour(graph, tour)
-                self.notebook.select(2)  # Switch to Graph View tab
+                self.after(0, lambda: self._on_computation_done(graph, tour, result))
         except Exception as e:
-            self.result_text.delete(1.0, tk.END)
-            self.result_text.insert(tk.END, f"Error: {e}")
+            self.after(0, lambda: self._on_error(e))
+
+    def _on_computation_done(self, graph, tour, result):
+        self.stop_spinner()
+        self.result_text.delete(1.0, tk.END)
+        self.result_text.insert(tk.END, result)
+        self.plot_tour(graph, tour)
+        self.notebook.select(2)  # Switch to Graph View tab
+
+    def _on_error(self, e):
+        self.stop_spinner()
+        self.result_text.delete(1.0, tk.END)
+        self.result_text.insert(tk.END, f"Error: {e}")
 
     def plot_tour(self, graph, tour):
         if not MATPLOTLIB_AVAILABLE:
