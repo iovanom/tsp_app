@@ -4,11 +4,17 @@ import tkinter as tk
 from tkinter import filedialog, ttk
 from typing import Optional
 
+MATPLOTLIB_AVAILABLE = False
 try:
+    import tkinter as tk_test
+    tk_test.Tk()  # Test if Tkinter can create a window
+    tk_test.Tk().destroy()
+    import matplotlib
+    matplotlib.use('TkAgg')
     import matplotlib.pyplot as plt
     from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
     MATPLOTLIB_AVAILABLE = True
-except ImportError:
+except Exception:
     MATPLOTLIB_AVAILABLE = False
 
 from tsp.algorithms.constructive import cheapest_insertion, nearest_neighbor, three_opt, two_opt
