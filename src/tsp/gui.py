@@ -254,5 +254,9 @@ class TSPGUI(tk.Tk):
 
 
 def main():
-    app = TSPGUI()
-    app.mainloop()
+    try:
+        app = TSPGUI()
+        app.mainloop()
+    except Exception as e:
+        print(f"GUI failed to start: {e}")
+        print("Try running in a graphical environment or with xvfb-run.")
