@@ -38,7 +38,7 @@ This is a Python CLI tool for solving the Asymmetric Traveling Salesman Problem 
   - `--three-opt-max-passes N`: Max passes for 3-opt (default: 100; ignored if timeout set).
   - `--three-opt-timeout S`: Time limit for 3-opt in seconds (ignores max_passes when set).
   - `--gui`: Launch the graphical user interface.
-- **GUI Application**: Interactive tkinter-based GUI with tabs for settings, data table editing, and graph visualization (optional matplotlib for plotting) for ATSP.
+- **GUI Application**: Interactive tkinter-based GUI with tabs for settings, data table editing, and graph visualization (optional matplotlib for plotting). Table uses labels for performance with large matrices; click cells to edit via dedicated input fields.
 - **2-opt Algorithm**: Local search to improve tours by reversing segments that reduce cost; includes safety limits to prevent infinite loops.
 - **3-opt Algorithm**: Local search to improve tours by evaluating and applying segment reversals for three edges; includes safety limits to prevent infinite loops.
 - **Sample Files**: Added CSV examples for testing (3, 25, 100 nodes) and a simple tkinter hello world example.

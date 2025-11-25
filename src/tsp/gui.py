@@ -46,7 +46,7 @@ class TSPGUI(tk.Tk):
 
         # Graph and table
         self.graph: Optional[AsymmetricGraph] = None
-        self.table_entries: list[list[tk.Entry]] = []
+        self.table_widgets: list[list[tk.Label]] = []
         self.labels: list[str] = []
 
         # Layout
@@ -142,6 +142,21 @@ class TSPGUI(tk.Tk):
         self.table_canvas.bind_all("<Button-4>", self._on_mousewheel)
         self.table_canvas.bind_all("<Button-5>", self._on_mousewheel)
 
+        # Edit cell widgets
+        self.edit_frame = tk.Frame(self.table_frame)
+        self.edit_frame.pack(side="bottom", fill="x", pady=5)
+        tk.Label(self.edit_frame, text="Edit Cell:").pack(side="left")
+        self.edit_row = tk.Entry(self.edit_frame, width=5)
+        self.edit_row.pack(side="left", padx=5)
+        tk.Label(self.edit_frame, text="Row").pack(side="left")
+        self.edit_col = tk.Entry(self.edit_frame, width=5)
+        self.edit_col.pack(side="left", padx=5)
+        tk.Label(self.edit_frame, text="Col").pack(side="left")
+        self.edit_value = tk.Entry(self.edit_frame, width=10)
+        self.edit_value.pack(side="left", padx=5)
+        tk.Label(self.edit_frame, text="Value").pack(side="left")
+        tk.Button(self.edit_frame, text="Update", command=self.update_cell).pack(side="left", padx=5)
+
         # Graph View Tab
         self.graph_frame = tk.Frame(self.notebook)
         self.notebook.add(self.graph_frame, text="Graph View")
@@ -187,7 +202,7 @@ class TSPGUI(tk.Tk):
         # Clear existing table
         for widget in self.table_inner_frame.winfo_children():
             widget.destroy()
-        self.table_entries = []
+        self.table_widgets = []
 
         n = self.graph.n
         # Headers
@@ -196,19 +211,48 @@ class TSPGUI(tk.Tk):
             tk.Label(self.table_inner_frame, text=self.labels[j], width=5).grid(row=0, column=j + 1)
         for i in range(n):
             tk.Label(self.table_inner_frame, text=self.labels[i], width=5).grid(row=i + 1, column=0)
-            row_entries = []
+            row_widgets = []
             for j in range(n):
-                entry = tk.Entry(self.table_inner_frame, width=5)
-                if i == j:
-                    entry.insert(0, "inf")
-                    entry.config(state="disabled")
-                else:
-                    entry.insert(0, str(self.graph.c(i, j)))
-                entry.grid(row=i + 1, column=j + 1)
-                row_entries.append(entry)
-            self.table_entries.append(row_entries)
+                label = tk.Label(self.table_inner_frame, text="inf" if i == j else str(self.graph.c(i, j)), width=5, relief="sunken", bg="white")
+                if i != j:
+                    label.bind("<Button-1>", lambda e, i=i, j=j: self.select_cell(i, j))
+                label.grid(row=i + 1, column=j + 1)
+                row_widgets.append(label)
+            self.table_widgets.append(row_widgets)
         # Update scroll region
         self.table_canvas.configure(scrollregion=self.table_canvas.bbox("all"))
+
+    def select_cell(self, i, j):
+        self.edit_row.delete(0, tk.END)
+        self.edit_row.insert(0, str(i))
+        self.edit_col.delete(0, tk.END)
+        self.edit_col.insert(0, str(j))
+        current_val = self.table_widgets[i][j].cget("text")
+        self.edit_value.delete(0, tk.END)
+        self.edit_value.insert(0, current_val)
+
+    def update_cell(self):
+        try:
+            row = int(self.edit_row.get())
+            col = int(self.edit_col.get())
+            val = self.edit_value.get().strip()
+            if row == col:
+                return  # Can't edit diagonal
+            if val in ["", "inf", "NA"]:
+                float_val = float("inf")
+                display_val = "inf"
+            else:
+                float_val = float(val)
+                display_val = str(float_val)
+            if self.graph:
+                self.graph._cost[row][col] = float_val
+                self.table_widgets[row][col].config(text=display_val)
+            # Clear entries
+            self.edit_row.delete(0, tk.END)
+            self.edit_col.delete(0, tk.END)
+            self.edit_value.delete(0, tk.END)
+        except ValueError:
+            pass  # Invalid input, ignore
 
     def _on_mousewheel(self, event):
         if event.delta:
@@ -219,9 +263,9 @@ class TSPGUI(tk.Tk):
             self.table_canvas.yview_scroll(1, "units")
 
     def get_graph_from_table(self) -> AsymmetricGraph:
-        if not self.table_entries:
+        if not self.table_widgets:
             raise ValueError("Table not loaded")
-        n = len(self.table_entries)
+        n = len(self.table_widgets)
         cost_matrix = []
         for i in range(n):
             row = []
@@ -229,7 +273,7 @@ class TSPGUI(tk.Tk):
                 if i == j:
                     row.append(float("inf"))
                 else:
-                    val = self.table_entries[i][j].get().strip()
+                    val = self.table_widgets[i][j].cget("text").strip()
                     if val in ["", "inf", "NA"]:
                         row.append(float("inf"))
                     else:
@@ -254,7 +298,7 @@ class TSPGUI(tk.Tk):
 
     def _run_computation(self):
         try:
-            if self.table_entries:
+            if self.table_widgets:
                 graph = self.get_graph_from_table()
             else:
                 graph = read_asymetric_matrix(self.csv_file.get())
