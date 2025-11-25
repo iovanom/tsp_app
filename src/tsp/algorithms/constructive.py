@@ -116,9 +116,12 @@ def two_opt(
                 b = tour[i + 1]
                 c = tour[j]
                 d = tour[j + 1]
-                # current cost: a->b + c->d
-                # new cost: a->c + b->d
-                delta = graph.c(a, c) + graph.c(b, d) - graph.c(a, b) - graph.c(c, d)
+                # cost of original middle segment b to c
+                cost_original = sum(graph.c(tour[k], tour[k + 1]) for k in range(i + 1, j))
+                # cost of reversed middle segment b to c
+                cost_middle_new = sum(graph.c(tour[k], tour[k - 1]) for k in range(j, i + 1, -1))
+                # delta = new end edges + new middle - old end edges - old middle
+                delta = graph.c(a, c) + graph.c(b, d) + cost_middle_new - graph.c(a, b) - graph.c(c, d) - cost_original
                 if delta < 0:
                     # reverse the segment from i+1 to j
                     tour[i + 1:j + 1] = reversed(tour[i + 1:j + 1])
@@ -161,35 +164,66 @@ def three_opt(
                     e = tour[k]
                     f = tour[(k + 1) % n]
                     current = graph.c(a, b) + graph.c(c, d) + graph.c(e, f)
+                    cost_original1 = sum(graph.c(tour[k], tour[k + 1]) for k in range(i + 1, j))
+                    cost_middle_new1 = sum(graph.c(tour[k], tour[k - 1]) for k in range(j, i + 1, -1))
 
                     # case 1: reverse i+1 to j
-                    delta1 = graph.c(a, c) + graph.c(b, d) + graph.c(e, f) - current
+                    delta1 = graph.c(a, c) + graph.c(b, d) + cost_middle_new1 - graph.c(a, b) - graph.c(b, c) - graph.c(c, d) - cost_original1
                     if delta1 < 0:
+                        old_cost = _tour_cost(graph, tour)
                         tour[i + 1:j + 1] = reversed(tour[i + 1:j + 1])
-                        improved = True
-                        break
+                        new_cost = _tour_cost(graph, tour)
+                        if new_cost < old_cost:
+                            improved = True
+                            break
+                        else:
+                            tour[i + 1:j + 1] = reversed(tour[i + 1:j + 1])  # revert
 
                     # case 2: reverse j+1 to k
-                    delta2 = graph.c(a, b) + graph.c(c, e) + graph.c(d, f) - current
+                    cost_original2 = sum(graph.c(tour[k], tour[k + 1]) for k in range(j + 1, k))
+                    cost_middle_new2 = sum(graph.c(tour[k], tour[k - 1]) for k in range(k, j + 1, -1))
+                    delta2 = graph.c(c, e) + graph.c(e, d) + graph.c(d, f) + cost_middle_new2 - graph.c(c, d) - graph.c(d, e) - graph.c(e, f) - cost_original2
                     if delta2 < 0:
+                        old_cost = _tour_cost(graph, tour)
                         tour[j + 1:k + 1] = reversed(tour[j + 1:k + 1])
-                        improved = True
-                        break
+                        new_cost = _tour_cost(graph, tour)
+                        if new_cost < old_cost:
+                            improved = True
+                            break
+                        else:
+                            tour[j + 1:k + 1] = reversed(tour[j + 1:k + 1])  # revert
 
                     # case 3: reverse i+1 to k
-                    delta3 = graph.c(a, e) + graph.c(b, d) + graph.c(c, f) - current
+                    cost_original3 = sum(graph.c(tour[k], tour[k + 1]) for k in range(i + 1, k))
+                    cost_middle_new3 = sum(graph.c(tour[k], tour[k - 1]) for k in range(k, i + 1, -1))
+                    delta3 = graph.c(a, e) + graph.c(e, b) + graph.c(b, f) + cost_middle_new3 - graph.c(a, b) - graph.c(b, e) - graph.c(e, f) - cost_original3
                     if delta3 < 0:
+                        old_cost = _tour_cost(graph, tour)
                         tour[i + 1:k + 1] = reversed(tour[i + 1:k + 1])
-                        improved = True
-                        break
+                        new_cost = _tour_cost(graph, tour)
+                        if new_cost < old_cost:
+                            improved = True
+                            break
+                        else:
+                            tour[i + 1:k + 1] = reversed(tour[i + 1:k + 1])  # revert
 
                     # case 4: reverse i+1 to j and j+1 to k
-                    delta4 = graph.c(a, d) + graph.c(c, b) + graph.c(e, f) - current
+                    cost_original4a = sum(graph.c(tour[k], tour[k + 1]) for k in range(i + 1, j))
+                    cost_middle_new4a = sum(graph.c(tour[k], tour[k - 1]) for k in range(j, i + 1, -1))
+                    cost_original4b = sum(graph.c(tour[k], tour[k + 1]) for k in range(j + 1, k))
+                    cost_middle_new4b = sum(graph.c(tour[k], tour[k - 1]) for k in range(k, j + 1, -1))
+                    delta4 = graph.c(a, c) + graph.c(c, b) + graph.c(c, e) + graph.c(e, d) + graph.c(d, f) + cost_middle_new4a + cost_middle_new4b - graph.c(a, b) - graph.c(b, c) - graph.c(c, d) - graph.c(d, e) - graph.c(e, f) - cost_original4a - cost_original4b
                     if delta4 < 0:
+                        old_cost = _tour_cost(graph, tour)
                         tour[i + 1:j + 1] = reversed(tour[i + 1:j + 1])
                         tour[j + 1:k + 1] = reversed(tour[j + 1:k + 1])
-                        improved = True
-                        break
+                        new_cost = _tour_cost(graph, tour)
+                        if new_cost < old_cost:
+                            improved = True
+                            break
+                        else:
+                            tour[i + 1:j + 1] = reversed(tour[i + 1:j + 1])  # revert
+                            tour[j + 1:k + 1] = reversed(tour[j + 1:k + 1])  # revert
 
                 if improved:
                     break

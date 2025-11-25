@@ -1,12 +1,12 @@
 Agents Guide for this repo
 
 ## Project Overview
-This is a Python CLI tool for solving the Traveling Salesman Problem (TSP) using constructive algorithms (nearest neighbor, cheapest insertion) with optional 2-opt and 3-opt improvement. Supports asymmetric cost matrices via CSV input.
+This is a Python CLI tool for solving the Asymmetric Traveling Salesman Problem (ATSP) using constructive algorithms (nearest neighbor, cheapest insertion) with optional 2-opt and 3-opt improvement. Handles asymmetric cost matrices via CSV input, where travel costs between nodes may differ in each direction.
 
 ## File Structure
 - `src/tsp/__init__.py`: CLI entry point with argument parsing and main execution logic.
-- `src/tsp/algorithms/constructive.py`: TSP algorithms (nearest_neighbor, cheapest_insertion, two_opt, three_opt).
-- `src/tsp/gui.py`: GUI application using tkinter for interactive TSP solving with matplotlib plotting.
+- `src/tsp/algorithms/constructive.py`: ATSP algorithms (nearest_neighbor, cheapest_insertion, two_opt, three_opt).
+- `src/tsp/gui.py`: GUI application using tkinter for interactive ATSP solving with matplotlib plotting.
 - `src/tsp/models/graph.py`: AsymmetricGraph class for cost matrix handling with labels.
 - `src/tsp/io/csv_reader.py`: CSV file reader for cost matrices with header labels.
 - `tests/test_algorithms.py`: Unit tests for constructive algorithms.
@@ -38,7 +38,7 @@ This is a Python CLI tool for solving the Traveling Salesman Problem (TSP) using
   - `--three-opt-max-passes N`: Max passes for 3-opt (default: 100; ignored if timeout set).
   - `--three-opt-timeout S`: Time limit for 3-opt in seconds (ignores max_passes when set).
   - `--gui`: Launch the graphical user interface.
-- **GUI Application**: Interactive tkinter-based GUI with tabs for settings, data table editing, and graph visualization (optional matplotlib for plotting).
+- **GUI Application**: Interactive tkinter-based GUI with tabs for settings, data table editing, and graph visualization (optional matplotlib for plotting) for ATSP.
 - **2-opt Algorithm**: Local search to improve tours by reversing segments that reduce cost; includes safety limits to prevent infinite loops.
 - **3-opt Algorithm**: Local search to improve tours by evaluating and applying segment reversals for three edges; includes safety limits to prevent infinite loops.
 - **Sample Files**: Added CSV examples for testing (3, 25, 100 nodes) and a simple tkinter hello world example.
