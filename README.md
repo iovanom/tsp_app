@@ -52,7 +52,7 @@ uv run tsp <csv_file> [options]
 Solve TSP using nearest neighbor (default):
 
 ```bash
-uv run tsp samples/minimal_sample.csv
+uv run tsp samples/3_nodes.csv
 ```
 
 Output:
@@ -64,49 +64,49 @@ Cost: 38.0
 Solve using the cheapest insertion:
 
 ```bash
-uv run tsp samples/minimal_sample.csv --algorithm cheapest_insertion
+uv run tsp samples/3_nodes.csv --algorithm cheapest_insertion
 ```
 
 Solve using nearest neighbor and apply 2-opt improvement:
 
 ```bash
-uv run tsp samples/minimal_sample.csv --two-opt
+uv run tsp samples/3_nodes.csv --two-opt
 ```
 
 Solve using cheapest insertion and apply 2-opt improvement:
 
 ```bash
-uv run tsp samples/minimal_sample.csv --algorithm cheapest_insertion --two-opt
+uv run tsp samples/3_nodes.csv --algorithm cheapest_insertion --two-opt
 ```
 
 Solve with 2-opt limited to 10 passes and 1 second timeout:
 
 ```bash
-uv run tsp samples/large_sample.csv --two-opt --two-opt-max-passes 10 --two-opt-timeout 1.0
+uv run tsp samples/100_nodes.csv --two-opt --two-opt-max-passes 10 --two-opt-timeout 1.0
 ```
 
 Solve using nearest neighbor and apply 3-opt improvement:
 
 ```bash
-uv run tsp samples/minimal_sample.csv --three-opt
+uv run tsp samples/3_nodes.csv --three-opt
 ```
 
 Solve using cheapest insertion and apply both 2-opt and 3-opt improvement:
 
 ```bash
-uv run tsp samples/minimal_sample.csv --algorithm cheapest_insertion --two-opt --three-opt
+uv run tsp samples/3_nodes.csv --algorithm cheapest_insertion --two-opt --three-opt
 ```
 
 Solve with 3-opt limited to 50 passes and 2 second timeout:
 
 ```bash
-uv run tsp samples/large_sample.csv --three-opt --three-opt-max-passes 50 --three-opt-timeout 2.0
+uv run tsp samples/100_nodes.csv --three-opt --three-opt-max-passes 50 --three-opt-timeout 2.0
 ```
 
 Benchmark nearest neighbor with 5 runs:
 
 ```bash
-uv run tsp samples/large_sample.csv --benchmark --runs 5
+uv run tsp samples/100_nodes.csv --benchmark --runs 5
 ```
 
 Output:
@@ -120,7 +120,7 @@ Time - Min: 0.0017s, Max: 0.0033s, Avg: 0.0026s
 Benchmark with 3-opt:
 
 ```bash
-uv run tsp samples/large_sample.csv --three-opt --benchmark --runs 5
+uv run tsp samples/100_nodes.csv --three-opt --benchmark --runs 5
 ```
 
 Output:
@@ -151,9 +151,10 @@ Load a CSV file or manually enter the cost matrix in the Data Table tab, select 
 
 Example CSV files:
 
-- `sample.csv` (in root): A 25-node example with labels A-Y and random costs.
-- `samples/minimal_sample.csv`: A small 3-node example with labels A, B, C.
-- `samples/large_sample.csv`: A 100-node example with labels A1-J10 and random costs.
+- `samples/3_nodes.csv`: A small 3-node example with labels A, B, C.
+- `samples/25_nodes.csv`: A 25-node example with labels A-Y and random costs.
+- `samples/100_nodes.csv`: A 100-node example with labels A1-J10 and random costs.
+- `samples/200_nodes.csv`: A 200-node example with labels A1-J20 and random costs.
 
 CSV format: First row is header with node labels. Subsequent rows are the cost matrix (asymmetric, diagonal should be 0 or empty).
 

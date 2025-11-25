@@ -15,9 +15,10 @@ This is a Python CLI tool for solving the Asymmetric Traveling Salesman Problem 
 - `tests/test_two_opt.py`: Unit tests for 2-opt algorithm.
 - `tests/test_three_opt.py`: Unit tests for 3-opt algorithm.
 - `samples/hello_gui.py`: Simple tkinter hello world example.
-- `samples/minimal_sample.csv`: Small 3-node example (A,B,C).
-- `samples/large_sample.csv`: 100-node example (A1-J10 labels).
-- `samples/sample.csv`: 25-node example (A-Y labels).
+- `samples/3_nodes.csv`: Small 3-node example (A,B,C).
+- `samples/25_nodes.csv`: 25-node example (A-Y labels).
+- `samples/100_nodes.csv`: 100-node example (A1-J10 labels).
+- `samples/200_nodes.csv`: 200-node example (A1-J20 labels).
 - `README.md`: User documentation with CLI usage and examples.
 - `pyproject.toml`: Project configuration (dependencies, build).
 - `setup.cfg`: Additional config (flake8, etc.).
@@ -41,7 +42,7 @@ This is a Python CLI tool for solving the Asymmetric Traveling Salesman Problem 
 - **GUI Application**: Interactive tkinter-based GUI with tabs for settings, cost editing, and graph visualization (optional matplotlib for plotting). Cost editor allows selecting source and destination nodes to view/edit costs, optimized for large matrices.
 - **2-opt Algorithm**: Local search to improve tours by reversing segments that reduce cost; includes safety limits to prevent infinite loops.
 - **3-opt Algorithm**: Local search to improve tours by evaluating and applying segment reversals for three edges; includes safety limits to prevent infinite loops.
-- **Sample Files**: Added CSV examples for testing (3, 25, 100 nodes) and a simple tkinter hello world example.
+- **Sample Files**: Added CSV examples for testing (3, 25, 100, 200 nodes) and a simple tkinter hello world example.
 - **Benchmarking**: CLI supports performance measurement with stats output.
 
 ## Development Guidelines
