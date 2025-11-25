@@ -44,9 +44,8 @@ class TSPGUI(tk.Tk):
         self.benchmark = tk.BooleanVar()
         self.runs = tk.IntVar(value=10)
 
-        # Graph and table
+        # Graph
         self.graph: Optional[AsymmetricGraph] = None
-        self.table_widgets: list[list[tk.Label]] = []
         self.labels: list[str] = []
 
         # Layout
@@ -69,7 +68,7 @@ class TSPGUI(tk.Tk):
         tk.Button(self.settings_frame, text="Browse", command=self.browse_file).grid(
             row=0, column=2
         )
-        tk.Button(self.settings_frame, text="Load Table", command=self.load_table).grid(
+        tk.Button(self.settings_frame, text="Load Graph", command=self.load_graph).grid(
             row=0, column=3
         )
 
@@ -119,43 +118,25 @@ class TSPGUI(tk.Tk):
         tk.Label(self.settings_frame, text="Runs:").grid(row=10, column=0, sticky="w")
         tk.Entry(self.settings_frame, textvariable=self.runs, width=5).grid(row=10, column=1)
 
-        # Data Table Tab
-        self.table_frame = tk.Frame(self.notebook)
-        self.notebook.add(self.table_frame, text="Data Table")
+        # Cost Editor Tab
+        self.cost_editor_frame = tk.Frame(self.notebook)
+        self.notebook.add(self.cost_editor_frame, text="Cost Editor")
 
-        # Scrollable canvas for table
-        self.table_canvas = tk.Canvas(self.table_frame)
-        self.table_scrollbar_v = tk.Scrollbar(self.table_frame, orient="vertical", command=self.table_canvas.yview)
-        self.table_scrollbar_h = tk.Scrollbar(self.table_frame, orient="horizontal", command=self.table_canvas.xview)
-        self.table_canvas.configure(yscrollcommand=self.table_scrollbar_v.set, xscrollcommand=self.table_scrollbar_h.set)
+        tk.Label(self.cost_editor_frame, text="Source:").grid(row=0, column=0, sticky="w")
+        self.source_combo = ttk.Combobox(self.cost_editor_frame, state="readonly")
+        self.source_combo.grid(row=0, column=1)
+        self.source_combo.bind("<<ComboboxSelected>>", self.update_cost_display)
 
-        self.table_canvas.pack(side="left", fill="both", expand=True)
-        self.table_scrollbar_v.pack(side="right", fill="y")
-        self.table_scrollbar_h.pack(side="bottom", fill="x")
+        tk.Label(self.cost_editor_frame, text="Destination:").grid(row=1, column=0, sticky="w")
+        self.dest_combo = ttk.Combobox(self.cost_editor_frame, state="readonly")
+        self.dest_combo.grid(row=1, column=1)
+        self.dest_combo.bind("<<ComboboxSelected>>", self.update_cost_display)
 
-        self.table_inner_frame = tk.Frame(self.table_canvas)
-        self.table_canvas.create_window((0, 0), window=self.table_inner_frame, anchor="nw")
+        tk.Label(self.cost_editor_frame, text="Cost:").grid(row=2, column=0, sticky="w")
+        self.cost_entry = tk.Entry(self.cost_editor_frame)
+        self.cost_entry.grid(row=2, column=1)
 
-        self.table_inner_frame.bind("<Configure>", lambda e: self.table_canvas.configure(scrollregion=self.table_canvas.bbox("all")))
-        # Bind mouse wheel
-        self.table_canvas.bind_all("<MouseWheel>", self._on_mousewheel)
-        self.table_canvas.bind_all("<Button-4>", self._on_mousewheel)
-        self.table_canvas.bind_all("<Button-5>", self._on_mousewheel)
-
-        # Edit cell widgets
-        self.edit_frame = tk.Frame(self.table_frame)
-        self.edit_frame.pack(side="bottom", fill="x", pady=5)
-        tk.Label(self.edit_frame, text="Edit Cell:").pack(side="left")
-        self.edit_row = tk.Entry(self.edit_frame, width=5)
-        self.edit_row.pack(side="left", padx=5)
-        tk.Label(self.edit_frame, text="Row").pack(side="left")
-        self.edit_col = tk.Entry(self.edit_frame, width=5)
-        self.edit_col.pack(side="left", padx=5)
-        tk.Label(self.edit_frame, text="Col").pack(side="left")
-        self.edit_value = tk.Entry(self.edit_frame, width=10)
-        self.edit_value.pack(side="left", padx=5)
-        tk.Label(self.edit_frame, text="Value").pack(side="left")
-        tk.Button(self.edit_frame, text="Update", command=self.update_cell).pack(side="left", padx=5)
+        tk.Button(self.cost_editor_frame, text="Update Cost", command=self.update_cost).grid(row=3, column=0, columnspan=2, pady=10)
 
         # Graph View Tab
         self.graph_frame = tk.Frame(self.notebook)
@@ -185,101 +166,51 @@ class TSPGUI(tk.Tk):
         if file:
             self.csv_file.set(file)
 
-    def load_table(self):
+    def load_graph(self):
         try:
             self.graph = read_asymetric_matrix(self.csv_file.get())
             self.labels = self.graph.labels
-            self.create_table()
+            self.source_combo['values'] = self.labels
+            self.dest_combo['values'] = self.labels
             self.plot_nodes(self.graph)
-            self.notebook.select(1)  # Switch to Data Table tab
+            self.notebook.select(1)  # Switch to Cost Editor tab
         except Exception as e:
             self.result_text.delete(1.0, tk.END)
-            self.result_text.insert(tk.END, f"Error loading table: {e}")
+            self.result_text.insert(tk.END, f"Error loading graph: {e}")
 
-    def create_table(self):
-        if self.graph is None:
+    def update_cost_display(self, event=None):
+        if self.graph and self.source_combo.get() and self.dest_combo.get():
+            try:
+                src_idx = self.labels.index(self.source_combo.get())
+                dest_idx = self.labels.index(self.dest_combo.get())
+                cost = self.graph.c(src_idx, dest_idx)
+                self.cost_entry.delete(0, tk.END)
+                self.cost_entry.insert(0, "inf" if cost == float("inf") else str(cost))
+            except ValueError:
+                pass
+
+    def update_cost(self):
+        if not self.graph:
             return
-        # Clear existing table
-        for widget in self.table_inner_frame.winfo_children():
-            widget.destroy()
-        self.table_widgets = []
-
-        n = self.graph.n
-        # Headers
-        tk.Label(self.table_inner_frame, text="", width=5).grid(row=0, column=0)  # Corner
-        for j in range(n):
-            tk.Label(self.table_inner_frame, text=self.labels[j], width=5).grid(row=0, column=j + 1)
-        for i in range(n):
-            tk.Label(self.table_inner_frame, text=self.labels[i], width=5).grid(row=i + 1, column=0)
-            row_widgets = []
-            for j in range(n):
-                label = tk.Label(self.table_inner_frame, text="inf" if i == j else str(self.graph.c(i, j)), width=5, relief="sunken", bg="white")
-                if i != j:
-                    label.bind("<Button-1>", lambda e, i=i, j=j: self.select_cell(i, j))
-                label.grid(row=i + 1, column=j + 1)
-                row_widgets.append(label)
-            self.table_widgets.append(row_widgets)
-        # Update scroll region
-        self.table_canvas.configure(scrollregion=self.table_canvas.bbox("all"))
-
-    def select_cell(self, i, j):
-        self.edit_row.delete(0, tk.END)
-        self.edit_row.insert(0, str(i))
-        self.edit_col.delete(0, tk.END)
-        self.edit_col.insert(0, str(j))
-        current_val = self.table_widgets[i][j].cget("text")
-        self.edit_value.delete(0, tk.END)
-        self.edit_value.insert(0, current_val)
-
-    def update_cell(self):
         try:
-            row = int(self.edit_row.get())
-            col = int(self.edit_col.get())
-            val = self.edit_value.get().strip()
-            if row == col:
+            src = self.source_combo.get()
+            dest = self.dest_combo.get()
+            val = self.cost_entry.get().strip()
+            if src == dest:
                 return  # Can't edit diagonal
+            src_idx = self.labels.index(src)
+            dest_idx = self.labels.index(dest)
             if val in ["", "inf", "NA"]:
                 float_val = float("inf")
-                display_val = "inf"
             else:
                 float_val = float(val)
-                display_val = str(float_val)
-            if self.graph:
-                self.graph._cost[row][col] = float_val
-                self.table_widgets[row][col].config(text=display_val)
-            # Clear entries
-            self.edit_row.delete(0, tk.END)
-            self.edit_col.delete(0, tk.END)
-            self.edit_value.delete(0, tk.END)
-        except ValueError:
-            pass  # Invalid input, ignore
+            self.graph._cost[src_idx][dest_idx] = float_val
+            # Update display
+            self.update_cost_display()
+        except (ValueError, IndexError):
+            pass
 
-    def _on_mousewheel(self, event):
-        if event.delta:
-            self.table_canvas.yview_scroll(int(-1*(event.delta/120)), "units")
-        elif event.num == 4:
-            self.table_canvas.yview_scroll(-1, "units")
-        elif event.num == 5:
-            self.table_canvas.yview_scroll(1, "units")
 
-    def get_graph_from_table(self) -> AsymmetricGraph:
-        if not self.table_widgets:
-            raise ValueError("Table not loaded")
-        n = len(self.table_widgets)
-        cost_matrix = []
-        for i in range(n):
-            row = []
-            for j in range(n):
-                if i == j:
-                    row.append(float("inf"))
-                else:
-                    val = self.table_widgets[i][j].cget("text").strip()
-                    if val in ["", "inf", "NA"]:
-                        row.append(float("inf"))
-                    else:
-                        row.append(float(val))
-            cost_matrix.append(row)
-        return AsymmetricGraph(cost_matrix, self.labels)
 
     def start_progress(self):
         self.progress.pack(side=tk.BOTTOM, pady=5, before=self.run_button)
@@ -298,8 +229,8 @@ class TSPGUI(tk.Tk):
 
     def _run_computation(self):
         try:
-            if self.table_widgets:
-                graph = self.get_graph_from_table()
+            if self.graph:
+                graph = self.graph
             else:
                 graph = read_asymetric_matrix(self.csv_file.get())
             algos = {"nearest_neighbor": nearest_neighbor, "cheapest_insertion": cheapest_insertion}

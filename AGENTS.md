@@ -6,7 +6,7 @@ This is a Python CLI tool for solving the Asymmetric Traveling Salesman Problem 
 ## File Structure
 - `src/tsp/__init__.py`: CLI entry point with argument parsing and main execution logic.
 - `src/tsp/algorithms/constructive.py`: ATSP algorithms (nearest_neighbor, cheapest_insertion, two_opt, three_opt).
-- `src/tsp/gui.py`: GUI application using tkinter for interactive ATSP solving with matplotlib plotting.
+- `src/tsp/gui.py`: GUI application using tkinter for interactive ATSP solving with matplotlib plotting and cost matrix editing.
 - `src/tsp/models/graph.py`: AsymmetricGraph class for cost matrix handling with labels.
 - `src/tsp/io/csv_reader.py`: CSV file reader for cost matrices with header labels.
 - `tests/test_algorithms.py`: Unit tests for constructive algorithms.
@@ -38,7 +38,7 @@ This is a Python CLI tool for solving the Asymmetric Traveling Salesman Problem 
   - `--three-opt-max-passes N`: Max passes for 3-opt (default: 100; ignored if timeout set).
   - `--three-opt-timeout S`: Time limit for 3-opt in seconds (ignores max_passes when set).
   - `--gui`: Launch the graphical user interface.
-- **GUI Application**: Interactive tkinter-based GUI with tabs for settings, data table editing, and graph visualization (optional matplotlib for plotting). Table uses labels for performance with large matrices; click cells to edit via dedicated input fields.
+- **GUI Application**: Interactive tkinter-based GUI with tabs for settings, cost editing, and graph visualization (optional matplotlib for plotting). Cost editor allows selecting source and destination nodes to view/edit costs, optimized for large matrices.
 - **2-opt Algorithm**: Local search to improve tours by reversing segments that reduce cost; includes safety limits to prevent infinite loops.
 - **3-opt Algorithm**: Local search to improve tours by evaluating and applying segment reversals for three edges; includes safety limits to prevent infinite loops.
 - **Sample Files**: Added CSV examples for testing (3, 25, 100 nodes) and a simple tkinter hello world example.
