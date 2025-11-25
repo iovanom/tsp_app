@@ -123,6 +123,25 @@ class TSPGUI(tk.Tk):
         self.table_frame = tk.Frame(self.notebook)
         self.notebook.add(self.table_frame, text="Data Table")
 
+        # Scrollable canvas for table
+        self.table_canvas = tk.Canvas(self.table_frame)
+        self.table_scrollbar_v = tk.Scrollbar(self.table_frame, orient="vertical", command=self.table_canvas.yview)
+        self.table_scrollbar_h = tk.Scrollbar(self.table_frame, orient="horizontal", command=self.table_canvas.xview)
+        self.table_canvas.configure(yscrollcommand=self.table_scrollbar_v.set, xscrollcommand=self.table_scrollbar_h.set)
+
+        self.table_canvas.pack(side="left", fill="both", expand=True)
+        self.table_scrollbar_v.pack(side="right", fill="y")
+        self.table_scrollbar_h.pack(side="bottom", fill="x")
+
+        self.table_inner_frame = tk.Frame(self.table_canvas)
+        self.table_canvas.create_window((0, 0), window=self.table_inner_frame, anchor="nw")
+
+        self.table_inner_frame.bind("<Configure>", lambda e: self.table_canvas.configure(scrollregion=self.table_canvas.bbox("all")))
+        # Bind mouse wheel
+        self.table_canvas.bind_all("<MouseWheel>", self._on_mousewheel)
+        self.table_canvas.bind_all("<Button-4>", self._on_mousewheel)
+        self.table_canvas.bind_all("<Button-5>", self._on_mousewheel)
+
         # Graph View Tab
         self.graph_frame = tk.Frame(self.notebook)
         self.notebook.add(self.graph_frame, text="Graph View")
@@ -166,20 +185,20 @@ class TSPGUI(tk.Tk):
         if self.graph is None:
             return
         # Clear existing table
-        for widget in self.table_frame.winfo_children():
+        for widget in self.table_inner_frame.winfo_children():
             widget.destroy()
         self.table_entries = []
 
         n = self.graph.n
         # Headers
-        tk.Label(self.table_frame, text="", width=5).grid(row=0, column=0)  # Corner
+        tk.Label(self.table_inner_frame, text="", width=5).grid(row=0, column=0)  # Corner
         for j in range(n):
-            tk.Label(self.table_frame, text=self.labels[j], width=5).grid(row=0, column=j + 1)
+            tk.Label(self.table_inner_frame, text=self.labels[j], width=5).grid(row=0, column=j + 1)
         for i in range(n):
-            tk.Label(self.table_frame, text=self.labels[i], width=5).grid(row=i + 1, column=0)
+            tk.Label(self.table_inner_frame, text=self.labels[i], width=5).grid(row=i + 1, column=0)
             row_entries = []
             for j in range(n):
-                entry = tk.Entry(self.table_frame, width=5)
+                entry = tk.Entry(self.table_inner_frame, width=5)
                 if i == j:
                     entry.insert(0, "inf")
                     entry.config(state="disabled")
@@ -188,6 +207,16 @@ class TSPGUI(tk.Tk):
                 entry.grid(row=i + 1, column=j + 1)
                 row_entries.append(entry)
             self.table_entries.append(row_entries)
+        # Update scroll region
+        self.table_canvas.configure(scrollregion=self.table_canvas.bbox("all"))
+
+    def _on_mousewheel(self, event):
+        if event.delta:
+            self.table_canvas.yview_scroll(int(-1*(event.delta/120)), "units")
+        elif event.num == 4:
+            self.table_canvas.yview_scroll(-1, "units")
+        elif event.num == 5:
+            self.table_canvas.yview_scroll(1, "units")
 
     def get_graph_from_table(self) -> AsymmetricGraph:
         if not self.table_entries:
